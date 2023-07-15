@@ -3,6 +3,7 @@ module Main where
 import System.Random (randomRIO)
 import Control.Monad (replicateM)
 import System.IO
+import Data.Char
 
 charLetters :: [Char]
 charLetters = ['a'..'z']
@@ -25,10 +26,11 @@ randomString count char_list = replicateM count (randomChar char_list)
 mainLoop :: IO ()
 mainLoop = do
   c <- getChar
-  if c == 'c' then 
+  if ord c == 27 then 
     return ()
   else do
     putChar c
+    hFlush stdout
     mainLoop
 
 startGame :: String -> IO ()
@@ -45,7 +47,8 @@ endGame = do
 main :: IO ()
 main = do
   hSetBuffering stdin NoBuffering
-  str <- randomString 10 charCombined
+  hSetEcho stdin False
+  str <- randomString 30 charCombined
   startGame str
   mainLoop
   endGame
