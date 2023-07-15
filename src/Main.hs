@@ -39,7 +39,6 @@ roundLoop :: String -> IO (Bool, String, Char)
 roundLoop "" = return (True, "", '.')
 roundLoop (current:remaining) = do
   input <- getChar
-  
   if (ord input == 27) || (input /= current) then 
     return (False, current:remaining, input)
   else do
