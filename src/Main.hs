@@ -23,21 +23,22 @@ randomChar char_list = (char_list !!) <$> randomRIO (1, length char_list - 1)
 randomString :: Int -> [Char] -> IO [Char]
 randomString count char_list = replicateM count (randomChar char_list)
 
-mainLoop :: IO ()
-mainLoop = do
-  c <- getChar
-  if ord c == 27 then 
-    return ()
-  else do
-    putChar c
-    hFlush stdout
-    mainLoop
-
 startGame :: String -> IO ()
 startGame str = do
   putStrLn ("Type this: " ++ str)
   putStr   "         : " 
   hFlush stdout
+
+mainLoop :: String -> IO ()
+mainLoop "" = return ()
+mainLoop (current:remaining) = do
+  input <- getChar
+  if (ord input == 27) || (input /= current) then 
+    return ()
+  else do
+    putChar input
+    hFlush stdout
+    mainLoop remaining
 
 endGame :: IO ()
 endGame = do
@@ -50,6 +51,6 @@ main = do
   hSetEcho stdin False
   str <- randomString 30 charCombined
   startGame str
-  mainLoop
+  mainLoop str
   endGame
   hFlush stdout
