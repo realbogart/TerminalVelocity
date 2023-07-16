@@ -1,4 +1,3 @@
-
 module Characters where
 
 import Control.Monad (replicateM)
@@ -57,4 +56,3 @@ randomChar char_list = (char_list !!) <$> randomRIO (1, length char_list - 1)
 
 randomString :: Int -> [Char] -> IO [Char]
 randomString count char_list = replicateM count (randomChar char_list)
-
