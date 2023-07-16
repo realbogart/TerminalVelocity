@@ -40,7 +40,7 @@ roundFailed (failed_on : _) input = do
 
 createRound :: IO ()
 createRound = do
-  str <- randomString 10 charCombined
+  str <- randomSentence 7 9
   roundStart str
   (result, remaining, input) <- roundLoop str
 
