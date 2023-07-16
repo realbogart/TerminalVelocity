@@ -2,13 +2,15 @@ module Main where
 
 import Characters
 
+import Paths_typing_practice (version)
+import Data.Version (showVersion)
 import Data.Char
 import System.IO
 
 roundStart :: String -> IO ()
 roundStart str = do
-  putStrLn ("Type this: " ++ str)
-  putStr "---------> "
+  putStrLn (" Type this: " ++ str)
+  putStr "          > "
   hFlush stdout
 
 roundLoop :: String -> IO (Bool, String, Char)
@@ -32,10 +34,10 @@ roundFailed "" _ = error "Something went wrong."
 roundFailed (failed_on : _) input = do
   putStrLn ""
   putStrLn ""
-  putStrLn ("Failed on character '" ++ [failed_on] ++ "'")
+  putStrLn (        " You should have typed '" ++ [failed_on] ++ "'")
 
   if input `elem` charCombined
-    then putStrLn ("          You typed '" ++ [input] ++ "'")
+    then putStrLn ( "      ...but you typed '" ++ [input] ++ "'")
     else putStr ""
 
 createRound :: IO ()
@@ -50,8 +52,24 @@ createRound = do
       createRound
     else roundFailed remaining input
 
+startGame :: IO ()
+startGame = do
+  putStrLn "------------------------------------------------------------"  
+  putStrLn (" Typing Practice v" ++ showVersion version)
+  putStrLn "------------------------------------------------------------"  
+  putStrLn " A one minute timer will start as soon as you start typing."  
+  putStrLn " Type out as much of the text as you can."  
+  putStrLn " If you make a mistake the game ends."  
+  putStrLn "------------------------------------------------------------"  
+
+endGame :: IO ()
+endGame = do
+  putStrLn "------------------------------------------------------------"
+
 main :: IO ()
 main = do
   hSetBuffering stdin NoBuffering
   hSetEcho stdin False
+  startGame
   createRound
+  endGame

@@ -20,7 +20,8 @@ common warnings
 executable typing-practice
     import:           warnings
     main-is:          Main.hs
-    other-modules:    Characters
+    other-modules:    Characters,
+                      Paths_typing_practice
     -- other-extensions:
     build-depends:    base ^>=4.16.4.0,
                       random >=1.2.1.1,
