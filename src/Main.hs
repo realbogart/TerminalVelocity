@@ -3,9 +3,18 @@ module Main where
 import Characters
 
 import Data.Char
+import Data.Int
+import Data.Time.Clock.System (SystemTime (systemNanoseconds, systemSeconds), getSystemTime)
 import Data.Version (showVersion)
 import Paths_typing_practice (version)
 import System.IO
+
+currentNanoseconds :: IO Int64
+currentNanoseconds = do
+  systemTime <- getSystemTime
+  let seconds = systemSeconds systemTime
+      nanoseconds = systemNanoseconds systemTime
+  return ((seconds * 1000000000 + fromIntegral nanoseconds) :: Int64)
 
 roundStart :: String -> IO ()
 roundStart str = do
@@ -14,16 +23,22 @@ roundStart str = do
   putStr "          > "
   hFlush stdout
 
-roundLoop :: String -> Int -> IO (Bool, String, Char, Int)
-roundLoop "" chars_typed = return (True, "", '.', chars_typed)
-roundLoop (current : remaining) chars_typed = do
+roundLoop :: String -> Int -> Int64 -> IO (Bool, Bool, String, Char, Int, Int64)
+roundLoop "" chars_typed total_nanoseconds = return (True, False, "", '.', chars_typed, total_nanoseconds)
+roundLoop (current : remaining) chars_typed total_nanoseconds = do
   input <- getChar
-  if (ord input == 27) || (input /= current)
-    then return (False, current : remaining, input, chars_typed)
-    else do
-      putChar input
-      hFlush stdout
-      roundLoop remaining (chars_typed + 1)
+  system_nanoseconds <- currentNanoseconds
+  let start_timestamp = if total_nanoseconds == 0 then system_nanoseconds else total_nanoseconds
+  let elapsed_nanoseconds = system_nanoseconds - start_timestamp
+  if elapsed_nanoseconds >= (60 * 1000000000)
+    then return (False, False, current : remaining, input, chars_typed, start_timestamp)
+    else
+      if (ord input == 27) || (input /= current)
+        then return (False, True, current : remaining, input, chars_typed, start_timestamp)
+        else do
+          putChar input
+          hFlush stdout
+          roundLoop remaining (chars_typed + 1) start_timestamp
 
 roundSucceded :: IO ()
 roundSucceded = do
@@ -41,18 +56,23 @@ roundFailed (failed_on : _) input = do
     then putStrLn ("     ... but you typed '" ++ [input] ++ "'")
     else putStr ""
 
-createRound :: Int -> IO Int
-createRound chars_typed = do
+createRound :: Int -> Int64 -> IO Int
+createRound chars_typed start_timestamp = do
   str <- randomSentence 7 9
   roundStart str
-  (result, remaining, input, total_chars_typed) <- roundLoop str chars_typed
+  (keep_going, failed, remaining, input, total_chars_typed, total_nanoseconds) <- roundLoop str chars_typed start_timestamp
 
-  if result
+  if keep_going
     then do
       roundSucceded
-      createRound total_chars_typed
+      createRound total_chars_typed total_nanoseconds
     else do
-      roundFailed remaining input
+      if failed then
+        roundFailed remaining input
+      else do 
+        putStrLn ""
+        putStrLn ""
+        putStrLn " Time's up!"
       return total_chars_typed
 
 startGame :: IO ()
@@ -76,5 +96,5 @@ main = do
   hSetBuffering stdin NoBuffering
   hSetEcho stdin False
   startGame
-  result <- createRound 0
+  result <- createRound 0 0
   endGame result
