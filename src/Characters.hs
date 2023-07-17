@@ -64,10 +64,9 @@ randomSentenceBuilder s sentenceMaxLength wordMaxLength
   | length s < sentenceMaxLength = do
       newWord <- randomString wordMaxLength charCombined
       randomSentenceBuilder (s ++ newWord ++ [' ']) sentenceMaxLength wordMaxLength
-  | otherwise = do 
+  | otherwise = do
       last_char <- randomChar charCombined
       return (take (sentenceMaxLength - 1) s ++ [last_char])
 
-randomSentence :: Int -> Int -> IO [Char] 
+randomSentence :: Int -> Int -> IO [Char]
 randomSentence = randomSentenceBuilder ""
-

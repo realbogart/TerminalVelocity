@@ -7,7 +7,7 @@ import Data.Int (Int64)
 import Data.Time.Clock.System (SystemTime (systemNanoseconds, systemSeconds), getSystemTime)
 import Data.Version (showVersion)
 import Paths_TerminalVelocity (version)
-import System.IO (hFlush, hSetBuffering, stdout, stdin, hSetEcho, BufferMode(NoBuffering))
+import System.IO (BufferMode (NoBuffering), hFlush, hSetBuffering, hSetEcho, stdin, stdout)
 
 currentNanoseconds :: IO Int64
 currentNanoseconds = do
@@ -67,12 +67,12 @@ createRound chars_typed start_timestamp = do
       roundSucceded
       createRound total_chars_typed total_nanoseconds
     else do
-      if failed then
-        roundFailed remaining input
-      else do 
-        putStrLn ""
-        putStrLn ""
-        putStrLn " Time's up!"
+      if failed
+        then roundFailed remaining input
+        else do
+          putStrLn ""
+          putStrLn ""
+          putStrLn " Time's up!"
       return total_chars_typed
 
 startGame :: IO ()
