@@ -100,15 +100,15 @@ startGame :: IO ()
 startGame = do
   putStrLn ("   Terminal Velocity v" ++ showVersion version)
   putStrLn ""
-  putStrLn " * A one minute countdown begins once you start typing."
-  putStrLn " * Type as many characters as you can before the time is up."
-  putStrLn " * If you make a mistake the game ends."
+  putStrLn " * Once you start typing, a one-minute countdown begins."
+  putStrLn " * Try to type as many characters as possible before the time runs out."
+  putStrLn " * If you make a mistake, the game ends immediately."
   putStrLn ""
 
 endGame :: GameState -> IO ()
 endGame gs = do
   putStrLn ""
-  putStrLn ("   You typed out a total of " ++ show (num_chars_typed gs) ++ " characters correctly.")
+  putStrLn ("   You successfully typed " ++ show (num_chars_typed gs) ++ " characters.")
   putStrLn ""
 
 main :: IO ()
