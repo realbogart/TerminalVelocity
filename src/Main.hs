@@ -93,7 +93,7 @@ createRound gs = do
         else do
           putStrLn ""
           putStrLn ""
-          putStrLn " Time's up!"
+          putStrLn "   Time's up!"
       return gs_next
 
 startGame :: IO ()
