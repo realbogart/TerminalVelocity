@@ -18,9 +18,9 @@ currentNanoseconds = do
 
 roundStart :: String -> IO ()
 roundStart str = do
-  putStrLn " Type this: "
-  putStrLn ("            " ++ str)
-  putStr "          > "
+  putStrLn "   Type this: "
+  putStrLn ("              " ++ str)
+  putStr "            > "
   hFlush stdout
 
 roundLoop :: String -> Int -> Int64 -> IO (Bool, Bool, String, Char, Int, Int64)
@@ -50,10 +50,10 @@ roundFailed "" _ = error "Something went wrong."
 roundFailed (failed_on : _) input = do
   putStrLn ""
   putStrLn ""
-  putStrLn (" You should have typed '" ++ [failed_on] ++ "'")
+  putStrLn ("   You should have typed '" ++ [failed_on] ++ "'")
 
   if input `elem` charCombined
-    then putStrLn ("     ... but you typed '" ++ [input] ++ "'")
+    then putStrLn ("       ... but you typed '" ++ [input] ++ "'")
     else putStr ""
 
 createRound :: Int -> Int64 -> IO Int
@@ -77,19 +77,18 @@ createRound chars_typed start_timestamp = do
 
 startGame :: IO ()
 startGame = do
-  putStrLn "------------------------------------------------------------"
-  putStrLn (" Terminal Velocity v" ++ showVersion version)
-  putStrLn "------------------------------------------------------------"
+  putStrLn ("   Terminal Velocity v" ++ showVersion version)
+  putStrLn ""
   putStrLn " * A one minute countdown will start when you start typing."
   putStrLn " * Type out as much of the text as you can."
   putStrLn " * If you make a mistake the game ends."
-  putStrLn "------------------------------------------------------------"
+  putStrLn ""
 
 endGame :: Int -> IO ()
 endGame total = do
   putStrLn ""
-  putStrLn (" You typed out a total of " ++ show total ++ " characters correctly.")
-  putStrLn "------------------------------------------------------------"
+  putStrLn ("   You typed out a total of " ++ show total ++ " characters correctly.")
+  putStrLn ""
 
 main :: IO ()
 main = do
