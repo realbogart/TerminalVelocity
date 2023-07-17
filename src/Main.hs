@@ -9,6 +9,25 @@ import Data.Version (showVersion)
 import Paths_TerminalVelocity (version)
 import System.IO (BufferMode (NoBuffering), hFlush, hSetBuffering, hSetEcho, stdin, stdout)
 
+data GameState = GameState {
+  game_over :: Bool,
+  made_mistake :: Bool,
+  remaining_chars :: String,
+  last_input :: Char,
+  num_chars_typed :: Int,
+  start_timestamp :: Int64
+}
+
+defaultGameState :: GameState
+defaultGameState = GameState {
+  game_over = False,
+  made_mistake = False,
+  remaining_chars = "",
+  last_input = '\0',
+  num_chars_typed = 0,
+  start_timestamp = 0
+}
+
 currentNanoseconds :: IO Int64
 currentNanoseconds = do
   systemTime <- getSystemTime
@@ -23,57 +42,59 @@ roundStart str = do
   putStr "            > "
   hFlush stdout
 
-roundLoop :: String -> Int -> Int64 -> IO (Bool, Bool, String, Char, Int, Int64)
-roundLoop "" chars_typed total_nanoseconds = return (True, False, "", '.', chars_typed, total_nanoseconds)
-roundLoop (current : remaining) chars_typed total_nanoseconds = do
+roundLoop :: GameState -> IO GameState
+roundLoop gs@GameState { remaining_chars = "" } = return gs { game_over = False, made_mistake = False } 
+roundLoop gs@GameState { remaining_chars = (current : remaining) } = do
   input <- getChar
   system_nanoseconds <- currentNanoseconds
-  let start_timestamp = if total_nanoseconds == 0 then system_nanoseconds else total_nanoseconds
-  let elapsed_nanoseconds = system_nanoseconds - start_timestamp
+  let init_timestamp = if start_timestamp gs == 0 then system_nanoseconds else start_timestamp gs
+  let elapsed_nanoseconds = system_nanoseconds - init_timestamp
   if elapsed_nanoseconds >= (60 * 1000000000)
-    then return (False, False, current : remaining, input, chars_typed, start_timestamp)
+    then return gs { game_over = True, made_mistake = False }
     else
       if (ord input == 27) || (input /= current)
-        then return (False, True, current : remaining, input, chars_typed, start_timestamp)
+        then return gs { game_over = True, made_mistake = True, last_input = input }
         else do
           putChar input
           hFlush stdout
-          roundLoop remaining (chars_typed + 1) start_timestamp
+          roundLoop gs { remaining_chars = remaining, num_chars_typed = num_chars_typed gs + 1, start_timestamp = init_timestamp }
 
 roundSucceded :: IO ()
 roundSucceded = do
   putStrLn ""
   putStrLn ""
 
-roundFailed :: String -> Char -> IO ()
-roundFailed "" _ = error "Something went wrong."
-roundFailed (failed_on : _) input = do
+roundFailed :: GameState -> IO ()
+roundFailed GameState { remaining_chars = "" } = error "Something went wrong."
+roundFailed gs@GameState { remaining_chars = (failed_on : _)} = do
   putStrLn ""
   putStrLn ""
   putStrLn ("   You should have typed '" ++ [failed_on] ++ "'")
+
+  let input = last_input gs
 
   if input `elem` charCombined
     then putStrLn ("       ... but you typed '" ++ [input] ++ "'")
     else putStr ""
 
-createRound :: Int -> Int64 -> IO Int
-createRound chars_typed start_timestamp = do
+createRound :: GameState -> IO GameState
+createRound gs = do
   str <- randomSentence 40 9
   roundStart str
-  (keep_going, failed, remaining, input, total_chars_typed, total_nanoseconds) <- roundLoop str chars_typed start_timestamp
+  gs_next <- roundLoop gs { remaining_chars = str }
 
-  if keep_going
+  if not (game_over gs_next)
     then do
       roundSucceded
-      createRound total_chars_typed total_nanoseconds
+      createRound gs_next
     else do
-      if failed
-        then roundFailed remaining input
+      if made_mistake gs_next
+        then roundFailed gs_next
         else do
           putStrLn ""
           putStrLn ""
           putStrLn " Time's up!"
-      return total_chars_typed
+      return gs_next
 
 startGame :: IO ()
 startGame = do
@@ -84,10 +105,10 @@ startGame = do
   putStrLn " * If you make a mistake the game ends."
   putStrLn ""
 
-endGame :: Int -> IO ()
-endGame total = do
+endGame :: GameState -> IO ()
+endGame gs = do
   putStrLn ""
-  putStrLn ("   You typed out a total of " ++ show total ++ " characters correctly.")
+  putStrLn ("   You typed out a total of " ++ show (num_chars_typed gs) ++ " characters correctly.")
   putStrLn ""
 
 main :: IO ()
@@ -95,5 +116,5 @@ main = do
   hSetBuffering stdin NoBuffering
   hSetEcho stdin False
   startGame
-  result <- createRound 0 0
+  result <- createRound defaultGameState
   endGame result
