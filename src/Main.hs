@@ -6,7 +6,7 @@ import Data.Char
 import Data.Int
 import Data.Time.Clock.System (SystemTime (systemNanoseconds, systemSeconds), getSystemTime)
 import Data.Version (showVersion)
-import Paths_typing_practice (version)
+import Paths_TerminalVelocity (version)
 import System.IO
 
 currentNanoseconds :: IO Int64
@@ -58,7 +58,7 @@ roundFailed (failed_on : _) input = do
 
 createRound :: Int -> Int64 -> IO Int
 createRound chars_typed start_timestamp = do
-  str <- randomSentence 7 9
+  str <- randomSentence 40 9
   roundStart str
   (keep_going, failed, remaining, input, total_chars_typed, total_nanoseconds) <- roundLoop str chars_typed start_timestamp
 
@@ -78,7 +78,7 @@ createRound chars_typed start_timestamp = do
 startGame :: IO ()
 startGame = do
   putStrLn "------------------------------------------------------------"
-  putStrLn (" Typing Practice v" ++ showVersion version)
+  putStrLn (" Terminal Velocity v" ++ showVersion version)
   putStrLn "------------------------------------------------------------"
   putStrLn " * A one minute countdown will start when you start typing."
   putStrLn " * Type out as much of the text as you can."

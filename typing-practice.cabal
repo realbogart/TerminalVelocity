@@ -1,7 +1,7 @@
 cabal-version:      3.0
-name:               typing-practice
+name:               TerminalVelocity
 version:            0.1.0.0
-synopsis:           A simple terminal typing practice game.
+synopsis:           A simple terminal typing game.
 -- description:
 homepage:           https://johanyngman.com/
 license:            MIT
@@ -21,7 +21,7 @@ executable typing-practice
     import:           warnings
     main-is:          Main.hs
     other-modules:    Characters,
-                      Paths_typing_practice
+                      Paths_TerminalVelocity
     -- other-extensions:
     build-depends:    base ^>=4.16.4.0,
                       random >=1.2.1.1,

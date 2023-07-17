@@ -2,7 +2,6 @@ module Characters where
 
 import Control.Monad (replicateM)
 import System.Random (randomRIO)
-import Data.List (intercalate)
 
 charLetters :: [Char]
 charLetters = ['a' .. 'z']
@@ -60,7 +59,15 @@ randomString maxLength char_list = do
   count <- randomRIO (1, maxLength)
   replicateM count (randomChar char_list)
 
-randomSentence :: Int -> Int -> IO [Char]
-randomSentence wordCount wordMaxLength = do 
-  sentence <- replicateM wordCount (randomString wordMaxLength charCombined)
-  return (intercalate [' '] sentence)
+randomSentenceBuilder :: [Char] -> Int -> Int -> IO [Char]
+randomSentenceBuilder s sentenceMaxLength wordMaxLength
+  | length s < sentenceMaxLength = do
+      newWord <- randomString wordMaxLength charCombined
+      randomSentenceBuilder (s ++ newWord ++ [' ']) sentenceMaxLength wordMaxLength
+  | otherwise = do 
+      last_char <- randomChar charCombined
+      return (take (sentenceMaxLength - 1) s ++ [last_char])
+
+randomSentence :: Int -> Int -> IO [Char] 
+randomSentence = randomSentenceBuilder ""
+
