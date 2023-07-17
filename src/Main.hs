@@ -48,11 +48,20 @@ finalizeGameState gs = gs{char_durations = processed_char_durations}
       then tail (char_durations gs)
       else char_durations gs
 
+detectCheating :: GameState -> Bool
+detectCheating gs = (successful_chars > 10) && (div successful_chars 3 > num_suspicious_chars)
+ where
+  num_suspicious_chars = length . filter (< 500000) . map duration_before_typed . char_durations $ gs
+  successful_chars = num_chars_typed_successfully gs
+
 instance Show CharDuration where
   show cd = "Char: " ++ [char cd] ++ ", Duration: " ++ show (duration_before_typed cd)
 
 prettyPrintDurations :: [CharDuration] -> String
 prettyPrintDurations = unlines . map show
+
+putStrLnIndented :: String -> IO ()
+putStrLnIndented str = putStrLn ("   " ++ str)
 
 currentNanoseconds :: IO Int64
 currentNanoseconds = do
@@ -63,8 +72,8 @@ currentNanoseconds = do
 
 roundStart :: String -> IO ()
 roundStart str = do
-  putStrLn "   Type this: "
-  putStrLn ("              " ++ str)
+  putStrLnIndented "Type this: "
+  putStrLnIndented ("           " ++ str)
   putStr "            > "
   hFlush stdout
 
@@ -97,12 +106,12 @@ roundFailed GameState{remaining_chars = ""} = error "Something went wrong."
 roundFailed gs@GameState{remaining_chars = (failed_on : _)} = do
   putStrLn ""
   putStrLn ""
-  putStrLn ("   You should have typed '" ++ [failed_on] ++ "'")
+  putStrLnIndented ("You should have typed '" ++ [failed_on] ++ "'")
 
   let input = last_input gs
 
   if input `elem` charCombined
-    then putStrLn ("       ... but you typed '" ++ [input] ++ "'")
+    then putStrLnIndented ("    ... but you typed '" ++ [input] ++ "'")
     else putStr ""
 
 createRound :: GameState -> IO GameState
@@ -121,12 +130,12 @@ createRound gs = do
         else do
           putStrLn ""
           putStrLn ""
-          putStrLn "   Time's up!"
+          putStrLnIndented "Time's up!"
       return gs_next
 
 startGame :: IO ()
 startGame = do
-  putStrLn ("   Terminal Velocity v" ++ showVersion version)
+  putStrLnIndented ("Terminal Velocity v" ++ showVersion version)
   putStrLn ""
   putStrLn " * Once you start typing, a one-minute countdown begins."
   putStrLn " * Try to type as many characters as possible before the time runs out."
@@ -141,9 +150,18 @@ debugPrint gs = do
 endGame :: GameState -> IO ()
 endGame gs = do
   putStrLn ""
-  putStrLn ("   You successfully typed " ++ show (num_chars_typed_successfully gs) ++ " characters.")
+  if detectCheating gs
+    then do
+      putStrLnIndented "*************************"
+      putStrLnIndented "*** CHEATING DETECTED ***"
+      putStrLnIndented "*************************"
+      putStrLn ""
+      putStrLnIndented "We have a zero-tolerance policy on cheating."
+      putStrLnIndented "Your account has been permanently banned."
+    else putStrLnIndented ("You successfully typed " ++ show (num_chars_typed_successfully gs) ++ " characters.")
   putStrLn ""
-  debugPrint gs
+
+-- debugPrint gs
 
 main :: IO ()
 main = do
