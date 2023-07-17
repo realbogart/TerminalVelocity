@@ -2,12 +2,12 @@ module Main where
 
 import Characters
 
-import Data.Char
-import Data.Int
+import Data.Char (ord)
+import Data.Int (Int64)
 import Data.Time.Clock.System (SystemTime (systemNanoseconds, systemSeconds), getSystemTime)
 import Data.Version (showVersion)
 import Paths_TerminalVelocity (version)
-import System.IO
+import System.IO (hFlush, hSetBuffering, stdout, stdin, hSetEcho, BufferMode(NoBuffering))
 
 currentNanoseconds :: IO Int64
 currentNanoseconds = do
@@ -79,8 +79,8 @@ startGame :: IO ()
 startGame = do
   putStrLn ("   Terminal Velocity v" ++ showVersion version)
   putStrLn ""
-  putStrLn " * A one minute countdown will start when you start typing."
-  putStrLn " * Type out as much of the text as you can."
+  putStrLn " * A one minute countdown begins once you start typing."
+  putStrLn " * Type as many characters as you can before the time is up."
   putStrLn " * If you make a mistake the game ends."
   putStrLn ""
 
