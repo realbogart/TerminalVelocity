@@ -49,7 +49,7 @@ finalizeGameState gs = gs{char_durations = processed_char_durations}
       else char_durations gs
 
 detectCheating :: GameState -> Bool
-detectCheating gs = (successful_chars > 10) && (div successful_chars 3 > num_suspicious_chars)
+detectCheating gs = (successful_chars > 10) && (num_suspicious_chars > div successful_chars 3)
  where
   num_suspicious_chars = length . filter (< 500000) . map duration_before_typed . char_durations $ gs
   successful_chars = num_chars_typed_successfully gs
