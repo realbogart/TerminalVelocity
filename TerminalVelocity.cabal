@@ -17,7 +17,7 @@ extra-doc-files:    CHANGELOG.md
 common warnings
     ghc-options: -Wall
 
-executable typing-practice
+executable TerminalVelocity
     import:           warnings
     main-is:          Main.hs
     other-modules:    Characters,
