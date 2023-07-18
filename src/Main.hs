@@ -101,6 +101,9 @@ roundSucceded = do
   putStrLn ""
   putStrLn ""
 
+secondsRemaining :: GameState -> Int
+secondsRemaining gs = (-) 60 (fromIntegral $ div (last_timestamp gs - start_timestamp gs) 1000000000)
+
 roundFailed :: GameState -> IO ()
 roundFailed GameState{remaining_chars = ""} = error "Something went wrong."
 roundFailed gs@GameState{remaining_chars = (failed_on : _)} = do
@@ -109,10 +112,15 @@ roundFailed gs@GameState{remaining_chars = (failed_on : _)} = do
   putStrLnIndented ("You should have typed '" ++ [failed_on] ++ "'")
 
   let input = last_input gs
-
   if input `elem` charCombined
     then putStrLnIndented ("    ... but you typed '" ++ [input] ++ "'")
     else putStr ""
+
+  putStrLn ""
+
+  let sr = secondsRemaining gs
+  let msg = if sr == 1 then "one second" else show sr ++ " seconds"
+  putStrLnIndented ("The countdown had " ++ msg ++ " remaining.")
 
 createRound :: GameState -> IO GameState
 createRound gs = do
