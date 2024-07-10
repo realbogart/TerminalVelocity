@@ -42,7 +42,8 @@ defaultGameState =
 finalizeGameState :: GameState -> GameState
 finalizeGameState gs = gs{char_durations = processed_char_durations}
  where
-  processed_char_durations = tail $ reverse cd
+  processed_char_durations | null cd = [] 
+                           | otherwise = tail $ reverse cd
   cd =
     if made_mistake gs
       then tail (char_durations gs)
