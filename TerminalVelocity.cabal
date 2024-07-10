@@ -1,9 +1,9 @@
-cabal-version:      3.0
+cabal-version:      3.4
 name:               TerminalVelocity
 version:            0.1.0.0
-synopsis:           A simple terminal typing game.
+-- synopsis:
 -- description:
-homepage:           https://johanyngman.com/
+homepage:           https://sonic-stride.com/
 license:            MIT
 license-file:       LICENSE
 author:             Johan Yngman
@@ -15,17 +15,26 @@ extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 common warnings
-    ghc-options: -Wall
+    ghc-options:      -Weverything -Wno-missing-signatures -Wno-missing-exported-signatures
+                      -Wno-implicit-prelude -Wno-missing-export-lists -Wno-missing-import-lists
+                      -Wno-monomorphism-restriction -Wno-type-defaults -Wno-missing-safe-haskell-mode
+                      -Wno-unsafe -Wno-missing-local-signatures -Wno-missing-kind-signatures
+                      -Wno-all-missed-specialisations -Wno-missed-specialisations
+                      -Wno-missing-deriving-strategies -Wno-prepositive-qualified-module
+                      -Wno-unused-top-binds
 
 executable TerminalVelocity
     import:           warnings
     main-is:          Main.hs
-    other-modules:    Characters,
-                      Paths_TerminalVelocity
+    -- other-modules:
     -- other-extensions:
-    build-depends:    base ^>=4.18.1.0,
-                      random >=1.2.1.1,
-                      time >=1.11.1.1
-    ghc-options:      -optc-no-pie -optl-no-pie
+    default-extensions: OverloadedStrings,
+                        DuplicateRecordFields,
+                        StrictData,
+                        OverloadedRecordDot,
+                        DeriveDataTypeable,
+    build-depends:    base,
+                      random,
+                      time
     hs-source-dirs:   src
     default-language: GHC2021
